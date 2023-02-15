@@ -39,7 +39,7 @@ public class MapperClass {
         mapper.getConfiguration()
                 .setPropertyCondition(context -> (!(context.getSource() instanceof PersistentCollection)));
 
-        List<D> l = new ArrayList<D>(entity.size());
+        List<D> l = new ArrayList<>(entity.size());
         entity.forEach(en -> {
             try {
                 l.add(mapper.map(en, outClass));
