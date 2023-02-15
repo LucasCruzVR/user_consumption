@@ -1,18 +1,18 @@
 package com.senior.api.UserConsumption.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class ProductService implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -24,6 +24,10 @@ public class ProductService implements Serializable {
     private Double price;
     private Integer type;
     private Integer status;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "productService")
+    private Set<OrderItem> orderItems = new HashSet<>();
 
     public ProductService(Long id, String name, Double price, ProductServiceTypeEnum codeType, ProductServiceStatusEnum codeStatus) {
         this.id = id;

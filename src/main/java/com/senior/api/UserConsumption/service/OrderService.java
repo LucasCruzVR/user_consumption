@@ -1,14 +1,16 @@
 package com.senior.api.UserConsumption.service;
 
 import com.senior.api.UserConsumption.domain.Order;
+import com.senior.api.UserConsumption.domain.OrderItem;
 import com.senior.api.UserConsumption.domain.ProductService;
 import com.senior.api.UserConsumption.model.AllOrdersDTO;
 import com.senior.api.UserConsumption.model.OrderDTO;
-import com.senior.api.UserConsumption.model.ProductServiceReqDTO;
-import com.senior.api.UserConsumption.model.ProductServiceRespDTO;
+import com.senior.api.UserConsumption.repository.OrderItemRepository;
 import com.senior.api.UserConsumption.repository.OrderRepository;
+import com.senior.api.UserConsumption.repository.ProductServiceRepository;
 import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.hibernate.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,8 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ProductServiceRepository productServiceRepository;
     private final ModelMapper modelMapper;
 
     public List<AllOrdersDTO> findAll() {
@@ -34,8 +38,19 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDTO save(Order order) {
-        return MapperClass.converter(orderRepository.save(order), OrderDTO.class);
+    public Order save(Order order) {
+        try {
+            Order orderSaved = orderRepository.save(order);
+            for (OrderItem orderItem : orderSaved.getOrderItems()) {
+                Optional<ProductService> productService = productServiceRepository.findById(orderItem.getProductService().getId());
+                orderItem.setProductService(productService.get());
+                orderItem.setOrder(orderSaved);
+            }
+            orderItemRepository.saveAll(orderSaved.getOrderItems());
+            return orderSaved;
+        } catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Transactional

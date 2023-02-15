@@ -30,13 +30,13 @@ public class OrdersController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<OrderDTO> read(@PathVariable Long id) {
-        return ResponseEntity.ok().body(MapperClass.converter(orderService.findOne(id), OrderDTO.class));
+    public ResponseEntity<Order> read(@PathVariable Long id) {
+        return ResponseEntity.ok().body(orderService.findOne(id));
     }
 
     @PostMapping
     @ResponseBody
-    public ResponseEntity<OrderDTO> create(@RequestBody Order order) {
+    public ResponseEntity<Order> create(@RequestBody Order order) {
         return ResponseEntity.ok().body(orderService.save(order));
     }
 

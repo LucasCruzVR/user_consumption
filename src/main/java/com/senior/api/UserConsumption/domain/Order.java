@@ -1,18 +1,19 @@
 package com.senior.api.UserConsumption.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "orders")
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -23,6 +24,9 @@ public class Order implements Serializable {
     private String orderCode;
     private Double discountPercentage;
     private Integer status;
+
+    @OneToMany(mappedBy = "order")
+    private Set<OrderItem> orderItems = new HashSet<>();
 
     public Order(Long id, String orderCode, Double discountPercentage, OrderStatusEnum code) {
         this.id = id;
