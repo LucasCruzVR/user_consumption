@@ -11,8 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -26,9 +25,9 @@ public class ProductService implements Serializable {
     private Double price;
 
     @Enumerated(EnumType.STRING)
-    private ProductServiceTypeEnum type;
+    private ProductServiceTypeEnum type = ProductServiceTypeEnum.PRODUCT;
     @Enumerated(EnumType.STRING)
-    private ProductServiceStatusEnum status;
+    private ProductServiceStatusEnum status = ProductServiceStatusEnum.ACTIVE;
 
     @OneToMany(mappedBy = "productService")
     private Set<OrderItem> orderItems = new HashSet<>();

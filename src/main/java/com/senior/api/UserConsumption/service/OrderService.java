@@ -3,14 +3,17 @@ package com.senior.api.UserConsumption.service;
 import com.senior.api.UserConsumption.domain.Order;
 import com.senior.api.UserConsumption.domain.OrderItem;
 import com.senior.api.UserConsumption.domain.ProductService;
+import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
+import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
-import com.senior.api.UserConsumption.model.order.OrderListDTO;
 import com.senior.api.UserConsumption.model.order.OrderCreateDTO;
 import com.senior.api.UserConsumption.model.order.OrderDetailDTO;
+import com.senior.api.UserConsumption.model.order.OrderListDTO;
 import com.senior.api.UserConsumption.repository.OrderItemRepository;
 import com.senior.api.UserConsumption.repository.OrderRepository;
 import com.senior.api.UserConsumption.repository.ProductServiceRepository;
 import com.senior.api.UserConsumption.util.MapperClass;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -22,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,30 +47,37 @@ public class OrderService {
         return MapperClass.converter(orderList, OrderListDTO.class);
     }
 
-    public Order findOne(Long id) {
-        Optional<Order> order = orderRepository.findById(id);
-        return order.orElseThrow(() -> new ObjectNotFoundException(id, "Not found"));
+    public OrderDetailDTO findOne(Long id) {
+        return MapperClass.converter(getByOrder(id), OrderDetailDTO.class);
     }
 
     @Transactional
     public OrderDetailDTO save(OrderCreateDTO orderCreateDTO) {
+        if (orderCreateDTO.getDiscountPercentage() == null) {
+            orderCreateDTO.setDiscountPercentage(0.0);
+        }
+        if(!applyDiscountIfOrderIsOpen(orderCreateDTO)) {
+            throw new IllegalArgumentException("Can't apply discount because order is inactive");
+        }
+        /* define order base attributes */
         Order order = Order.builder()
                 .orderCode(orderCreateDTO.getOrderCode())
                 .discountPercentage(orderCreateDTO.getDiscountPercentage())
                 .finalPrice(orderCreateDTO.getFinalPrice())
                 .status(orderCreateDTO.getStatus())
-                //.orderItems(MapperClass.converter(orderCreateDTO.getProductServiceList(),OrderItem.class))
                 .build();
         final Order orderStatic = order;
 
+        /* Get orderItems and associate with products */
         Set<OrderItem> items = MapperClass.converter(orderCreateDTO.getProductServiceList(), OrderItem.class);
         items.forEach(o -> o.setOrder(orderStatic));
         items = items.stream().map(item -> {
             item = item.toBuilder()
                     .productService(getByProductService(item.getProductService().getId())).build();
-            //item.setPrice(item.getAmount() * item.getProductService().getPrice());
             return item;
         }).collect(Collectors.toSet());
+
+        /* Add the quantity of Products and apply discount */
         Set<OrderItem> orderItem = new HashSet<>();
         orderItem.addAll(items.stream()
                 .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.PRODUCT))
@@ -76,13 +85,17 @@ public class OrderService {
                     item.setPrice(item.getAmount() * item.getProductService().getPrice() * (100 - orderCreateDTO.getDiscountPercentage()) / 100);
                     return item;
                 }).collect(Collectors.toSet()));
+
+        /* Apply price on Service item */
         orderItem.addAll(items.stream()
                 .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.SERVICE))
-                        .map(item -> {
-                            item.setPrice(item.getProductService().getPrice());
-                            return item;
-                        })
-                    .collect(Collectors.toSet()));
+                .map(item -> {
+                    item.setPrice(item.getProductService().getPrice());
+                    return item;
+                })
+                .collect(Collectors.toSet()));
+
+        /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
 
         order = orderRepository.save(order);
@@ -101,9 +114,25 @@ public class OrderService {
     @Transactional
     public void delete(Long id) {
         orderRepository.deleteById(id);
+        //PSQLException
     }
 
     private ProductService getByProductService(Long id) {
-        return productServiceRepository.findById(id).orElseThrow(() -> new RuntimeException("product/service not found"));
+        ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new RuntimeException("product/service not found"));
+        if(productService.getStatus().equals(ProductServiceStatusEnum.ACTIVE)) {
+            return productService;
+        }
+        throw new IllegalArgumentException("Product "+ productService.getName() + " is inactive");
+    }
+
+    private Order getByOrder(Long id) {
+        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("product/service not found"));
+    }
+
+    private Boolean applyDiscountIfOrderIsOpen(OrderCreateDTO order) {
+        if(order.getDiscountPercentage() > 0 && order.getStatus().equals(OrderStatusEnum.INACTIVE)) {
+            return false;
+        }
+        return true;
     }
 }

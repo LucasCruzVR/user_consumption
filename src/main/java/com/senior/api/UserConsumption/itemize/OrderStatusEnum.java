@@ -2,7 +2,7 @@ package com.senior.api.UserConsumption.itemize;
 
 public enum OrderStatusEnum {
     ACTIVE(0, "Active"),
-    DISABLE(1, "Disable");
+    INACTIVE(1, "Inactive");
 
     private int code;
     private String description;

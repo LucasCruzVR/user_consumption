@@ -28,7 +28,7 @@ public class OrdersController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Order> read(@PathVariable Long id) {
+    public ResponseEntity<OrderDetailDTO> read(@PathVariable Long id) {
         return ResponseEntity.ok().body(orderService.findOne(id));
     }
 

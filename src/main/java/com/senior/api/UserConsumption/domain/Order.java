@@ -6,7 +6,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,8 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@Getter
-@Setter
+@Data
 public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -27,7 +25,7 @@ public class Order implements Serializable {
     private Double discountPercentage;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatusEnum status;
+    private OrderStatusEnum status = OrderStatusEnum.ACTIVE;
 
     private Double finalPrice;
 

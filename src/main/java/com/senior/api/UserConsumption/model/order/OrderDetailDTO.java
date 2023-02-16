@@ -2,11 +2,9 @@ package com.senior.api.UserConsumption.model.order;
 
 import com.senior.api.UserConsumption.domain.OrderItem;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
+import com.senior.api.UserConsumption.model.order_item.OrderItemDetail;
 import lombok.Data;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,5 +15,5 @@ public class OrderDetailDTO {
     private Double discountPercentage;
     private OrderStatusEnum status;
     private Double finalPrice;
-
+    private Set<OrderItem> orderItems;
 }
