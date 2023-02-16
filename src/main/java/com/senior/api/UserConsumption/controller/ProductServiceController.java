@@ -21,8 +21,9 @@ public class ProductServiceController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<ProductServiceRespDTO>> listAll() {
-        return ResponseEntity.ok().body(productServiceService.findAll());
+    public ResponseEntity<List<ProductServiceRespDTO>> listAll(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                               @RequestParam(value = "size", defaultValue = "5") int size) {
+        return ResponseEntity.ok().body(productServiceService.findAll(page, size));
     }
 
     @GetMapping("/{id}")

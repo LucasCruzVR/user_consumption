@@ -26,4 +26,8 @@ public class OrderItem implements Serializable {
     @ManyToOne
     @JoinColumn(name = "product_service_id")
     private ProductService productService;
+
+    private Integer amount;
+    private Double price;
+
 }

@@ -24,6 +24,7 @@ public class Order implements Serializable {
     private String orderCode;
     private Double discountPercentage;
     private Integer status;
+    private Double finalPrice;
 
     @OneToMany(mappedBy = "order")
     private Set<OrderItem> orderItems = new HashSet<>();

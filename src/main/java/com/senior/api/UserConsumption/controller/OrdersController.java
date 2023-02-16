@@ -24,8 +24,9 @@ public class OrdersController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<AllOrdersDTO>> listAll() {
-        return ResponseEntity.ok().body(orderService.findAll());
+    public ResponseEntity<List<AllOrdersDTO>> listAll(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                      @RequestParam(value = "size", defaultValue = "5") int size) {
+        return ResponseEntity.ok().body(orderService.findAll(page, size));
     }
 
     @GetMapping("/{id}")

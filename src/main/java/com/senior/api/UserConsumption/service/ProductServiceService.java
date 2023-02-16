@@ -8,6 +8,9 @@ import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +24,14 @@ public class ProductServiceService {
     private final ProductServiceRepository productServiceRepository;
     private final ModelMapper modelMapper;
 
-    public List<ProductServiceRespDTO> findAll() {
-        return MapperClass.converter(productServiceRepository.findAll(), ProductServiceRespDTO.class);
+    public List<ProductServiceRespDTO> findAll(int page, int size) {
+        if (page > 0) {
+            page = page - 1;
+        }
+        Pageable pagination = PageRequest.of(page, size);
+        Page<ProductService> productServicePage = productServiceRepository.findAll(pagination);
+        List<ProductService> productServiceList = productServicePage.getContent();
+        return MapperClass.converter(productServiceList, ProductServiceRespDTO.class);
     }
 
     public ProductService findOne(Long id) {
