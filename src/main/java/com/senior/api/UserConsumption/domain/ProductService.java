@@ -13,7 +13,9 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder(toBuilder = true)
 public class ProductService implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -22,34 +24,12 @@ public class ProductService implements Serializable {
     private Long id;
     private String name;
     private Double price;
-    private Integer type;
-    private Integer status;
 
-    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    private ProductServiceTypeEnum type;
+    @Enumerated(EnumType.STRING)
+    private ProductServiceStatusEnum status;
+
     @OneToMany(mappedBy = "productService")
     private Set<OrderItem> orderItems = new HashSet<>();
-
-    public ProductService(Long id, String name, Double price, ProductServiceTypeEnum codeType, ProductServiceStatusEnum codeStatus) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.type = codeType.getCode();
-        this.status = codeStatus.getCode();
-    }
-
-    public void setType(ProductServiceTypeEnum code) {
-        this.type = code.getCode();
-    }
-
-    public ProductServiceTypeEnum getType() {
-        return ProductServiceTypeEnum.toEnum(type);
-    }
-
-    public void setStatus(ProductServiceStatusEnum code) {
-        this.status = code.getCode();
-    }
-
-    public ProductServiceStatusEnum getStatus() {
-        return ProductServiceStatusEnum.toEnum(status);
-    }
 }

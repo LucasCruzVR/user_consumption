@@ -12,6 +12,8 @@ import java.util.Set;
 
 @Entity(name = "orders")
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 @Getter
 @Setter
 public class Order implements Serializable {
@@ -23,24 +25,12 @@ public class Order implements Serializable {
 
     private String orderCode;
     private Double discountPercentage;
-    private Integer status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatusEnum status;
+
     private Double finalPrice;
 
     @OneToMany(mappedBy = "order")
     private Set<OrderItem> orderItems = new HashSet<>();
-
-    public Order(Long id, String orderCode, Double discountPercentage, OrderStatusEnum code) {
-        this.id = id;
-        this.orderCode = orderCode;
-        this.discountPercentage = discountPercentage;
-        this.status = code.getCode();
-    }
-
-    public void setStatus(OrderStatusEnum code) {
-        this.status = code.getCode();
-    }
-
-    public OrderStatusEnum getStatus() {
-        return OrderStatusEnum.toEnum(status);
-    }
 }

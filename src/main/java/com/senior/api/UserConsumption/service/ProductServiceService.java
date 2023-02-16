@@ -1,8 +1,8 @@
 package com.senior.api.UserConsumption.service;
 
 import com.senior.api.UserConsumption.domain.ProductService;
-import com.senior.api.UserConsumption.model.ProductServiceReqDTO;
-import com.senior.api.UserConsumption.model.ProductServiceRespDTO;
+import com.senior.api.UserConsumption.model.product_service.ProductServiceReqDTO;
+import com.senior.api.UserConsumption.model.product_service.ProductServiceRespDTO;
 import com.senior.api.UserConsumption.repository.ProductServiceRepository;
 import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
