@@ -13,7 +13,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@Data
+@Getter
+@Setter
 public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
 

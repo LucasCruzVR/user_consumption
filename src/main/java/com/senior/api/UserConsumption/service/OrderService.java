@@ -113,6 +113,10 @@ public class OrderService {
 
     @Transactional
     public void delete(Long id) {
+        Order order = getByOrder(id);
+        for (OrderItem orderItem : order.getOrderItems()) {
+            orderItemRepository.deleteById(orderItem.getId());
+        }
         orderRepository.deleteById(id);
         //PSQLException
     }
