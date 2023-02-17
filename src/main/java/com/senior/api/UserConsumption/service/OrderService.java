@@ -14,6 +14,7 @@ import com.senior.api.UserConsumption.repository.OrderRepository;
 import com.senior.api.UserConsumption.repository.ProductServiceRepository;
 import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -64,34 +65,10 @@ public class OrderService {
                 .discountPercentage(orderCreateDTO.getDiscountPercentage())
                 .status(orderCreateDTO.getStatus())
                 .build();
-        final Order orderStatic = order;
 
-        /* Get orderItems and associate with products */
-        Set<OrderItem> items = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
-        items.forEach(o -> o.setOrder(orderStatic));
-        items = items.stream().map(item -> {
-            item = item.toBuilder()
-                    .productService(getByProductService(item.getProductService().getId())).build();
-            return item;
-        }).collect(Collectors.toSet());
-
-        /* Add the quantity of Products and apply discount */
-        Set<OrderItem> orderItem = new HashSet<>();
-        orderItem.addAll(items.stream()
-                .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.PRODUCT))
-                .map(item -> {
-                    item.setPrice(item.getAmount() * item.getProductService().getPrice() * (100 - orderCreateDTO.getDiscountPercentage()) / 100);
-                    return item;
-                }).collect(Collectors.toSet()));
-
-        /* Apply price on Service item */
-        orderItem.addAll(items.stream()
-                .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.SERVICE))
-                .map(item -> {
-                    item.setPrice(item.getProductService().getPrice());
-                    return item;
-                })
-                .collect(Collectors.toSet()));
+        /* get orderItems from DTO and calculate final price */
+        Set<OrderItem> orderItem = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
+        orderItem = orderItemsWithCalculatedPrices(orderItem ,order, orderCreateDTO.getDiscountPercentage());
 
         /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
@@ -99,9 +76,7 @@ public class OrderService {
         order.getOrderItem().clear();
         order.getOrderItem().addAll(orderItem);
 
-        order = orderRepository.save(order);
-        //orderItemRepository.saveAll(orderItem);
-        return mapperClass.toObject(order, OrderDetailDTO.class);
+        return mapperClass.toObject(orderRepository.save(order), OrderDetailDTO.class);
     }
 
     @Transactional
@@ -119,34 +94,10 @@ public class OrderService {
                 .discountPercentage(orderCreateDTO.getDiscountPercentage())
                 .status(orderCreateDTO.getStatus())
                 .build();
-        final Order orderStatic = order;
 
-        /* Get orderItems and associate with products */
-        Set<OrderItem> items = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
-        items.forEach(o -> o.setOrder(orderStatic));
-        items = items.stream().map(item -> {
-            item = item.toBuilder()
-                    .productService(getByProductService(item.getProductService().getId())).build();
-            return item;
-        }).collect(Collectors.toSet());
-
-        /* Add the quantity of Products and apply discount */
-        Set<OrderItem> orderItem = new HashSet<>();
-        orderItem.addAll(items.stream()
-                .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.PRODUCT))
-                .map(item -> {
-                    item.setPrice(item.getAmount() * item.getProductService().getPrice() * (100 - orderCreateDTO.getDiscountPercentage()) / 100);
-                    return item;
-                }).collect(Collectors.toSet()));
-
-        /* Apply price on Service item */
-        orderItem.addAll(items.stream()
-                .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.SERVICE))
-                .map(item -> {
-                    item.setPrice(item.getProductService().getPrice());
-                    return item;
-                })
-                .collect(Collectors.toSet()));
+        /* get orderItems from DTO and calculate final price */
+        Set<OrderItem> orderItem = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
+        orderItem = orderItemsWithCalculatedPrices(orderItem , order, orderCreateDTO.getDiscountPercentage());
 
         /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
@@ -154,9 +105,7 @@ public class OrderService {
         order.getOrderItem().clear();
         order.getOrderItem().addAll(orderItem);
 
-        order = orderRepository.save(order);
-        //orderItemRepository.saveAll(orderItem);
-        return mapperClass.toObject(order, OrderDetailDTO.class);
+        return mapperClass.toObject(orderRepository.save(order), OrderDetailDTO.class);
     }
 
     @Transactional
@@ -176,7 +125,7 @@ public class OrderService {
     }
 
     private Order getByOrder(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("product/service not found"));
+        return orderRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id,"product/service not found"));
     }
 
     private Boolean applyDiscountIfOrderIsOpen(OrderCreateDTO order) {
@@ -186,13 +135,32 @@ public class OrderService {
         return true;
     }
 
-    //private Set<OrderItem> orderItemsWithCalculatedPrices(Set<OrderItem> items) {
+    private Set<OrderItem> orderItemsWithCalculatedPrices(Set<OrderItem> items, Order order, Double discount) {
+        /* Get orderItems and associate with products */
+        items.forEach(o -> o.setOrder(order));
+        items = items.stream().map(item -> {
+            item = item.toBuilder()
+                    .productService(getByProductService(item.getProductService().getId())).build();
+            return item;
+        }).collect(Collectors.toSet());
 
-    //}
+        /* Add the quantity of Products and apply discount */
+        Set<OrderItem> orderItem = new HashSet<>();
+        orderItem.addAll(items.stream()
+                .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.PRODUCT))
+                .map(item -> {
+                    item.setPrice(item.getAmount() * item.getProductService().getPrice() * (100 - discount) / 100);
+                    return item;
+                }).collect(Collectors.toSet()));
 
-    private void setAttributesInCreateOrder(Order order, OrderCreateDTO orderCreateDTO) {
-        if(order.getId() == 0) {
-
-        }
+        /* Apply price on Service item */
+        orderItem.addAll(items.stream()
+                .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.SERVICE))
+                .map(item -> {
+                    item.setPrice(item.getProductService().getPrice());
+                    return item;
+                })
+                .collect(Collectors.toSet()));
+        return orderItem;
     }
 }

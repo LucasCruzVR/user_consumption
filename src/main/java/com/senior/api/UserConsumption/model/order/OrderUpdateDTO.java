@@ -8,7 +8,6 @@ import java.util.Set;
 
 @Data
 public class OrderUpdateDTO {
-    private String orderCode;
     private Double discountPercentage;
     private OrderStatusEnum status;
     private Set<OrderItemCreateDTO> orderItem;
