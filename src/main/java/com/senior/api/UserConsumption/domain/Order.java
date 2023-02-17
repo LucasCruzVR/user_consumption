@@ -1,6 +1,5 @@
 package com.senior.api.UserConsumption.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import lombok.*;
 
@@ -30,6 +29,8 @@ public class Order implements Serializable {
 
     private Double finalPrice;
 
-    @OneToMany(mappedBy = "order")
-    private Set<OrderItem> orderItems = new HashSet<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
+    private Set<OrderItem> items = new HashSet<>();
+
 }

@@ -1,8 +1,8 @@
 package com.senior.api.UserConsumption.controller;
 
 import com.senior.api.UserConsumption.domain.ProductService;
-import com.senior.api.UserConsumption.model.product_service.ProductServiceReqDTO;
-import com.senior.api.UserConsumption.model.product_service.ProductServiceRespDTO;
+import com.senior.api.UserConsumption.model.product_service.ProductServiceCreateDTO;
+import com.senior.api.UserConsumption.model.product_service.ProductServiceDetailDTO;
 import com.senior.api.UserConsumption.service.ProductServiceService;
 import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
@@ -21,26 +21,26 @@ public class ProductServiceController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<ProductServiceRespDTO>> listAll(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                               @RequestParam(value = "size", defaultValue = "5") int size) {
+    public ResponseEntity<List<ProductServiceDetailDTO>> listAll(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                 @RequestParam(value = "size", defaultValue = "5") int size) {
         return ResponseEntity.ok().body(productServiceService.findAll(page, size));
     }
 
     @GetMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<ProductServiceRespDTO> read(@PathVariable Long id) {
-        return ResponseEntity.ok().body(MapperClass.converter(productServiceService.findOne(id), ProductServiceRespDTO.class));
+    public ResponseEntity<ProductServiceDetailDTO> read(@PathVariable Long id) {
+        return ResponseEntity.ok().body(MapperClass.converter(productServiceService.findOne(id), ProductServiceDetailDTO.class));
     }
 
     @PostMapping
     @ResponseBody
-    public ResponseEntity<ProductServiceRespDTO> create(@RequestBody ProductService productService) {
+    public ResponseEntity<ProductServiceDetailDTO> create(@RequestBody ProductServiceCreateDTO productService) {
         return ResponseEntity.ok().body(productServiceService.save(productService));
     }
 
     @PutMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<ProductServiceRespDTO> update(@PathVariable Long id, @RequestBody ProductServiceReqDTO productService) {
+    public ResponseEntity<ProductServiceDetailDTO> update(@PathVariable Long id, @RequestBody ProductServiceCreateDTO productService) {
         return ResponseEntity.ok().body(productServiceService.update(id, productService));
     }
 

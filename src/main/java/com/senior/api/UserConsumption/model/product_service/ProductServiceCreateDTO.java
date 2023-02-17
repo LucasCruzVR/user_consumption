@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductServiceReqDTO {
+public class ProductServiceCreateDTO {
     private String name;
     private Double price;
     private ProductServiceTypeEnum type;

@@ -40,7 +40,7 @@ public class OrdersController {
 
     @PutMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<OrderCreateDTO> update(@PathVariable Long id, @RequestBody Order order) {
+    public ResponseEntity<OrderDetailDTO> update(@PathVariable Long id, @RequestBody OrderCreateDTO order) {
         return ResponseEntity.ok().body(orderService.update(id, order));
     }
 
