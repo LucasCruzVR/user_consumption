@@ -94,9 +94,7 @@ public class TestProductServiceService {
         final ProductService ps1 = new ProductService(1L, "test1", 10.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
         final ProductService ps2 = new ProductService(1L, "test2", 12.0, ProductServiceTypeEnum.SERVICE, ProductServiceStatusEnum.ACTIVE, null);
 
-        Mockito.when(productServiceRepository.findById(1L)).thenReturn(Optional.of(ps2)); //expect a fetch, return a "fetched" person;
-        //Mockito.when(productServiceService.delete(Mockito.isA(ProductService.class))).thenReturn(true);
         productServiceService.delete(ps1.getId());
-        Mockito.verify(productServiceRepository, Mockito.times(1)).delete(Mockito.isA(ProductService.class)); //pretty sure it is verify after call
+        assertThrows("Not Found", ObjectNotFoundException.class, () -> productServiceService.findOne(5L));
     }
 }

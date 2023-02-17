@@ -34,6 +34,7 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductServiceRepository productServiceRepository;
     private final ModelMapper modelMapper;
+    private final MapperClass mapperClass;
 
     public List<OrderListDTO> findAll(int page, int size) {
         if (page > 0) {
@@ -46,17 +47,13 @@ public class OrderService {
     }
 
     public OrderDetailDTO findOne(Long id) {
-        Order order = getByOrder(id);
-        //OrderDetailDTO orderDTO = MapperClass.converter(order, OrderDetailDTO.class);
-        //orderDTO.setOrderItems(MapperClass.converter(order.getOrderItems(), OrderItemDetail.class));
-        //return MapperClass.converter(getByOrder(id), OrderDetailDTO.class);
-
-        return modelMapper.map(order, OrderDetailDTO.class);
-        //return orderDTO;
+        return mapperClass.toObject(getByOrder(id), OrderDetailDTO.class);
     }
 
     @Transactional
     public OrderDetailDTO save(OrderCreateDTO orderCreateDTO) {
+
+        Order order = orderRepository.findById(orderCreateDTO.getId()).orElse(Order.builder().build());
         if (orderCreateDTO.getDiscountPercentage() == null) {
             orderCreateDTO.setDiscountPercentage(0.0);
         }
@@ -64,7 +61,7 @@ public class OrderService {
             throw new IllegalArgumentException("Can't apply discount because order is inactive");
         }
         /* define order base attributes */
-        Order order = Order.builder()
+        order = order.toBuilder()
                 .orderCode(orderCreateDTO.getOrderCode())
                 .discountPercentage(orderCreateDTO.getDiscountPercentage())
                 .finalPrice(orderCreateDTO.getFinalPrice())
@@ -73,7 +70,7 @@ public class OrderService {
         final Order orderStatic = order;
 
         /* Get orderItems and associate with products */
-        Set<OrderItem> items = MapperClass.converter(orderCreateDTO.getProductServiceList(), OrderItem.class);
+        Set<OrderItem> items = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
         items.forEach(o -> o.setOrder(orderStatic));
         items = items.stream().map(item -> {
             item = item.toBuilder()
@@ -102,34 +99,38 @@ public class OrderService {
         /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
 
+        order.getOrderItem().clear();
+        order.getOrderItem().addAll(orderItem);
+
         order = orderRepository.save(order);
-        orderItemRepository.saveAll(orderItem);
-        return MapperClass.converter(order, OrderDetailDTO.class);
+        //orderItemRepository.saveAll(orderItem);
+        return mapperClass.toObject(order, OrderDetailDTO.class);
     }
 
     @Transactional
     public OrderDetailDTO update(Long id, OrderCreateDTO orderCreateDTO) {
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
-
-        Order order = getByOrder(id);
-        modelMapper.map(orderCreateDTO, order);
+        Order order = orderRepository.findById(id).orElse(Order.builder().build());
+        if (orderCreateDTO.getDiscountPercentage() == null) {
+            orderCreateDTO.setDiscountPercentage(0.0);
+        }
+        if(!applyDiscountIfOrderIsOpen(orderCreateDTO)) {
+            throw new IllegalArgumentException("Can't apply discount because order is inactive");
+        }
+        /* define order base attributes */
+        order = order.toBuilder()
+                .orderCode(orderCreateDTO.getOrderCode())
+                .discountPercentage(orderCreateDTO.getDiscountPercentage())
+                .finalPrice(orderCreateDTO.getFinalPrice())
+                .status(orderCreateDTO.getStatus())
+                .build();
         final Order orderStatic = order;
 
-        Set<OrderItem> items = MapperClass.converter(orderCreateDTO.getProductServiceList(), OrderItem.class);
+        /* Get orderItems and associate with products */
+        Set<OrderItem> items = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
+        items.forEach(o -> o.setOrder(orderStatic));
         items = items.stream().map(item -> {
             item = item.toBuilder()
                     .productService(getByProductService(item.getProductService().getId())).build();
-            for (OrderItem orderItem : orderStatic.getItems())
-            {
-                if (item.getId() == orderItem.getId()) {
-                    modelMapper.map(orderItem, item);
-                    return item;
-                    //item.setAmount(orderItem.getAmount());
-                    /*if (orderItem.getProductService() != null){
-                        item.setProductService(orderItem.getProductService());
-                    }*/
-                }
-            }
             return item;
         }).collect(Collectors.toSet());
 
@@ -138,7 +139,7 @@ public class OrderService {
         orderItem.addAll(items.stream()
                 .filter(item -> item.getProductService().getType().equals(ProductServiceTypeEnum.PRODUCT))
                 .map(item -> {
-                    item.setPrice(item.getAmount() * item.getProductService().getPrice() * (100 - orderStatic.getDiscountPercentage()) / 100);
+                    item.setPrice(item.getAmount() * item.getProductService().getPrice() * (100 - orderCreateDTO.getDiscountPercentage()) / 100);
                     return item;
                 }).collect(Collectors.toSet()));
 
@@ -154,21 +155,16 @@ public class OrderService {
         /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
 
-        order = orderRepository.save(order);
-        orderItemRepository.saveAll(orderItem);
-        return MapperClass.converter(order, OrderDetailDTO.class);
+        order.getOrderItem().clear();
+        order.getOrderItem().addAll(orderItem);
 
-        /*Order order = orderRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "Not found"));
-        modelMapper.map(newOrder, order);
-        return MapperClass.converter(orderRepository.save(order), OrderCreateDTO.class);*/
+        order = orderRepository.save(order);
+        //orderItemRepository.saveAll(orderItem);
+        return mapperClass.toObject(order, OrderDetailDTO.class);
     }
 
     @Transactional
     public void delete(Long id) {
-        Order order = getByOrder(id);
-        for (OrderItem orderItem : order.getItems()) {
-            orderItemRepository.deleteById(orderItem.getId());
-        }
         orderRepository.deleteById(id);
         //PSQLException
     }
@@ -190,5 +186,11 @@ public class OrderService {
             return false;
         }
         return true;
+    }
+
+    private void setAttributesInCreateOrder(Order order, OrderCreateDTO orderCreateDTO) {
+        if(order.getId() == 0) {
+
+        }
     }
 }

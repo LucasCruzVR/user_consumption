@@ -19,5 +19,5 @@ public class OrderDetailDTO {
     private Double discountPercentage;
     private OrderStatusEnum status;
     private Double finalPrice;
-    private Set<OrderItemDetail> items;
+    private Set<OrderItemDetail> orderItem;
 }

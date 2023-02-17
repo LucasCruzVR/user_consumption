@@ -30,7 +30,7 @@ public class Order implements Serializable {
     private Double finalPrice;
 
     @Builder.Default
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
-    private Set<OrderItem> items = new HashSet<>();
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrderItem> orderItem = new HashSet<>();
 
 }
