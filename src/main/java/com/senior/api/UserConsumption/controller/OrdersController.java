@@ -4,12 +4,14 @@ import com.senior.api.UserConsumption.domain.Order;
 import com.senior.api.UserConsumption.model.order.OrderListDTO;
 import com.senior.api.UserConsumption.model.order.OrderCreateDTO;
 import com.senior.api.UserConsumption.model.order.OrderDetailDTO;
+import com.senior.api.UserConsumption.model.order.OrderUpdateDTO;
 import com.senior.api.UserConsumption.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -34,13 +36,13 @@ public class OrdersController {
 
     @PostMapping
     @ResponseBody
-    public ResponseEntity<OrderDetailDTO> create(@RequestBody OrderCreateDTO order) {
-        return ResponseEntity.ok().body(orderService.save(order));
+    public ResponseEntity<OrderDetailDTO> create(@RequestBody @Valid OrderCreateDTO order) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.save(order));
     }
 
     @PutMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<OrderDetailDTO> update(@PathVariable Long id, @RequestBody OrderCreateDTO order) {
+    public ResponseEntity<OrderDetailDTO> update(@PathVariable Long id, @RequestBody @Valid OrderUpdateDTO order) {
         return ResponseEntity.ok().body(orderService.update(id, order));
     }
 

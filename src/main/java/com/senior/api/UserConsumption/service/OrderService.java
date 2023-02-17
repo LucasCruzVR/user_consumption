@@ -9,6 +9,7 @@ import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
 import com.senior.api.UserConsumption.model.order.OrderCreateDTO;
 import com.senior.api.UserConsumption.model.order.OrderDetailDTO;
 import com.senior.api.UserConsumption.model.order.OrderListDTO;
+import com.senior.api.UserConsumption.model.order.OrderUpdateDTO;
 import com.senior.api.UserConsumption.repository.OrderItemRepository;
 import com.senior.api.UserConsumption.repository.OrderRepository;
 import com.senior.api.UserConsumption.repository.ProductServiceRepository;
@@ -80,24 +81,23 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDetailDTO update(Long id, OrderCreateDTO orderCreateDTO) {
+    public OrderDetailDTO update(Long id, OrderUpdateDTO orderUpdateDTO) {
         Order order = orderRepository.findById(id).orElse(Order.builder().build());
-        if (orderCreateDTO.getDiscountPercentage() == null) {
-            orderCreateDTO.setDiscountPercentage(0.0);
+        if (orderUpdateDTO.getDiscountPercentage() == null) {
+            orderUpdateDTO.setDiscountPercentage(0.0);
         }
-        if(!applyDiscountIfOrderIsOpen(orderCreateDTO)) {
+        if(!applyDiscountIfOrderIsOpen(MapperClass.converter(orderUpdateDTO, OrderCreateDTO.class))) {
             throw new IllegalArgumentException("Can't apply discount because order is inactive");
         }
         /* define order base attributes */
         order = order.toBuilder()
-                .orderCode(orderCreateDTO.getOrderCode())
-                .discountPercentage(orderCreateDTO.getDiscountPercentage())
-                .status(orderCreateDTO.getStatus())
+                .discountPercentage(orderUpdateDTO.getDiscountPercentage())
+                .status(orderUpdateDTO.getStatus())
                 .build();
 
         /* get orderItems from DTO and calculate final price */
-        Set<OrderItem> orderItem = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
-        orderItem = orderItemsWithCalculatedPrices(orderItem , order, orderCreateDTO.getDiscountPercentage());
+        Set<OrderItem> orderItem = MapperClass.converter(orderUpdateDTO.getOrderItem(), OrderItem.class);
+        orderItem = orderItemsWithCalculatedPrices(orderItem , order, orderUpdateDTO.getDiscountPercentage());
 
         /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
@@ -117,7 +117,7 @@ public class OrderService {
     /* PRIVATE METHODS */
 
     private ProductService getByProductService(Long id) {
-        ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new RuntimeException("product/service not found"));
+        ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new RuntimeException("Product/Service not found"));
         if(productService.getStatus().equals(ProductServiceStatusEnum.ACTIVE)) {
             return productService;
         }
@@ -125,7 +125,7 @@ public class OrderService {
     }
 
     private Order getByOrder(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id,"product/service not found"));
+        return orderRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id,"Order not found"));
     }
 
     private Boolean applyDiscountIfOrderIsOpen(OrderCreateDTO order) {

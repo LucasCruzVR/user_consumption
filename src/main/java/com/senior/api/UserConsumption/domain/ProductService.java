@@ -6,6 +6,8 @@ import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +24,9 @@ public class ProductService implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull(message = "Product/Service name can't be null")
+    @NotEmpty(message = "Product/Service name can't be empty")
     private String name;
     private Double price;
 

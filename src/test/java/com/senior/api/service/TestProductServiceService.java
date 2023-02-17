@@ -95,6 +95,6 @@ public class TestProductServiceService {
         final ProductService ps2 = new ProductService(1L, "test2", 12.0, ProductServiceTypeEnum.SERVICE, ProductServiceStatusEnum.ACTIVE, null);
 
         productServiceService.delete(ps1.getId());
-        assertThrows("Not Found", ObjectNotFoundException.class, () -> productServiceService.findOne(5L));
+        assertThrows("Not Found", ObjectNotFoundException.class, () -> productServiceService.findOne(ps1.getId()));
     }
 }

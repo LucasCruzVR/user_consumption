@@ -4,6 +4,8 @@ import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +23,10 @@ public class Order implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Order code can't be null")
+    @NotEmpty(message = "Order code can't be empty")
     private String orderCode;
+
     private Double discountPercentage;
 
     @Enumerated(EnumType.STRING)

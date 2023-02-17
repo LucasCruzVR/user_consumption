@@ -7,6 +7,7 @@ import com.senior.api.UserConsumption.repository.ProductServiceRepository;
 import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +37,7 @@ public class ProductServiceService {
 
     public ProductService findOne(Long id) {
         Optional<ProductService> productService = productServiceRepository.findById(id);
-        return productService.orElseThrow(() -> new ObjectNotFoundException(id, "Not found"));
+        return productService.orElseThrow(() -> new ObjectNotFoundException(id, "Product/Service Not found"));
     }
 
     @Transactional
@@ -47,13 +48,16 @@ public class ProductServiceService {
     @Transactional
     public ProductServiceDetailDTO update(Long id, ProductServiceCreateDTO newProductService) {
         modelMapper.getConfiguration().setSkipNullEnabled(true);
-        ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "Not found"));
+        ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "Product/Service Not found"));
         modelMapper.map(newProductService, productService);
         return MapperClass.converter(productServiceRepository.save(productService), ProductServiceDetailDTO.class);
     }
 
-    @Transactional
     public void delete(Long id) {
-        productServiceRepository.deleteById(id);
+        try {
+            productServiceRepository.deleteById(id);
+        }catch (Exception ex) {
+            throw new ConstraintViolationException("Unable to delete this Product/Service. Check if it is linked to an order", null, "");
+        }
     }
 }
