@@ -1,6 +1,5 @@
 package com.senior.api.UserConsumption.controller;
 
-import com.senior.api.UserConsumption.domain.ProductService;
 import com.senior.api.UserConsumption.model.product_service.ProductServiceCreateDTO;
 import com.senior.api.UserConsumption.model.product_service.ProductServiceDetailDTO;
 import com.senior.api.UserConsumption.service.ProductServiceService;

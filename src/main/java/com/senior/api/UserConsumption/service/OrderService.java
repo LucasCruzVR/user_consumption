@@ -52,8 +52,6 @@ public class OrderService {
 
     @Transactional
     public OrderDetailDTO save(OrderCreateDTO orderCreateDTO) {
-
-        Order order = orderRepository.findById(orderCreateDTO.getId()).orElse(Order.builder().build());
         if (orderCreateDTO.getDiscountPercentage() == null) {
             orderCreateDTO.setDiscountPercentage(0.0);
         }
@@ -61,10 +59,9 @@ public class OrderService {
             throw new IllegalArgumentException("Can't apply discount because order is inactive");
         }
         /* define order base attributes */
-        order = order.toBuilder()
+        Order order = Order.builder()
                 .orderCode(orderCreateDTO.getOrderCode())
                 .discountPercentage(orderCreateDTO.getDiscountPercentage())
-                .finalPrice(orderCreateDTO.getFinalPrice())
                 .status(orderCreateDTO.getStatus())
                 .build();
         final Order orderStatic = order;
@@ -120,7 +117,6 @@ public class OrderService {
         order = order.toBuilder()
                 .orderCode(orderCreateDTO.getOrderCode())
                 .discountPercentage(orderCreateDTO.getDiscountPercentage())
-                .finalPrice(orderCreateDTO.getFinalPrice())
                 .status(orderCreateDTO.getStatus())
                 .build();
         final Order orderStatic = order;
@@ -169,6 +165,8 @@ public class OrderService {
         //PSQLException
     }
 
+    /* PRIVATE METHODS */
+
     private ProductService getByProductService(Long id) {
         ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new RuntimeException("product/service not found"));
         if(productService.getStatus().equals(ProductServiceStatusEnum.ACTIVE)) {
@@ -187,6 +185,10 @@ public class OrderService {
         }
         return true;
     }
+
+    //private Set<OrderItem> orderItemsWithCalculatedPrices(Set<OrderItem> items) {
+
+    //}
 
     private void setAttributesInCreateOrder(Order order, OrderCreateDTO orderCreateDTO) {
         if(order.getId() == 0) {
