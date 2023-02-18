@@ -9,4 +9,5 @@ public class OrderListDTO {
     private String orderCode;
     private Double discountPercentage;
     private OrderStatusEnum status;
+    private Double finalPrice;
 }

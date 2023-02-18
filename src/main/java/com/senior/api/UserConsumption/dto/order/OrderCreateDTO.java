@@ -8,10 +8,11 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Set;
 
 @Data
-public class OrderCreateDTO {
+public class OrderCreateDTO implements Serializable {
     @NotNull(message = "Code of order can't be null")
     @NotEmpty(message = "Code of order can't be empty")
     private String orderCode;

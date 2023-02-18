@@ -5,6 +5,7 @@ import com.senior.api.UserConsumption.domain.ProductService;
 import com.senior.api.UserConsumption.domain.QProductService;
 import com.senior.api.UserConsumption.dto.product_service.ProductServiceCreateDTO;
 import com.senior.api.UserConsumption.dto.product_service.ProductServiceDetailDTO;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceUpdateDTO;
 import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
 import com.senior.api.UserConsumption.repository.ProductServiceRepository;
@@ -37,7 +38,7 @@ public class ProductServiceService {
         }
         BooleanBuilder where = new BooleanBuilder();
         if (name != null) {
-            where.and(qProductService.name.like(name));
+            where.and(qProductService.name.like("%" + name + "%"));
         }
         if (type != null) {
             where.and(qProductService.type.eq(type));
@@ -48,7 +49,7 @@ public class ProductServiceService {
         Pageable pagination = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
         Page<ProductService> productServicePage;
-        if(where.hasValue()) {
+        if (where.hasValue()) {
             productServicePage = productServiceRepository.findAll(where.getValue(), pagination);
         } else {
             productServicePage = productServiceRepository.findAll(pagination);
@@ -68,10 +69,13 @@ public class ProductServiceService {
     }
 
     @Transactional
-    public ProductServiceDetailDTO update(Long id, ProductServiceCreateDTO newProductService) {
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+    public ProductServiceDetailDTO update(Long id, ProductServiceUpdateDTO productServiceUpdateDTO) {
         ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "Product/Service Not found"));
-        modelMapper.map(newProductService, productService);
+        productService = productService.toBuilder()
+                .name(productServiceUpdateDTO.getName())
+                .price(productServiceUpdateDTO.getPrice())
+                .status(productServiceUpdateDTO.getStatus())
+                .type(productServiceUpdateDTO.getType()).build();
         return MapperClass.converter(productServiceRepository.save(productService), ProductServiceDetailDTO.class);
     }
 

@@ -1,6 +1,10 @@
-package com.senior.api.service;
+package com.senior.api.UserConsumption;
 
+import com.querydsl.core.BooleanBuilder;
 import com.senior.api.UserConsumption.domain.ProductService;
+import com.senior.api.UserConsumption.domain.QOrder;
+import com.senior.api.UserConsumption.domain.QProductService;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceUpdateDTO;
 import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
 import com.senior.api.UserConsumption.dto.product_service.ProductServiceCreateDTO;
@@ -16,10 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,8 @@ public class TestProductServiceService {
     @Mock
     private ProductServiceRepository productServiceRepository;
 
+    private static QProductService qProductService = QProductService.productService;
+
     private final ProductService productService1 = new ProductService(1L, "test1", 10.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
     private final ProductService productService2 = new ProductService(2L, "test2", 12.0, ProductServiceTypeEnum.SERVICE, ProductServiceStatusEnum.ACTIVE, null);
     private final ProductService productService3 = new ProductService(3L, "test3", 14.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
@@ -44,14 +47,40 @@ public class TestProductServiceService {
 
     @Test
     public void listAllProductServiceWithPagination() {
-        Pageable pagination = PageRequest.of(0, 2);
+        Pageable pagination = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "id"));
         productServiceList.addAll(Arrays.asList(productService1, productService2, productService3));
         Page<ProductService> pages = new PageImpl<ProductService>(productServiceList.subList(0, 2), pagination, productServiceList.size());
+
         Mockito.when((productServiceRepository.findAll(pagination))).thenReturn(pages);
-        List<ProductServiceDetailDTO> resp = productServiceService.findAll(1, 2, "", null, null);
+        List<ProductServiceDetailDTO> resp = productServiceService.findAll(1, 2, null, null, null);
+
         Assertions.assertNotNull(resp);
         Assertions.assertEquals(resp.getClass(), ArrayList.class);
         Assertions.assertEquals(2, resp.size());
+    }
+
+    @Test
+    public void listAllProductServiceWithPaginationAndFilter() {
+        Pageable pagination = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "id"));
+
+        BooleanBuilder where = new BooleanBuilder();
+        where.and(qProductService.name.like(productService1.getName()));
+        where.and(qProductService.status.eq(productService1.getStatus()));
+        where.and(qProductService.type.eq(productService1.getType()));
+
+        productServiceList.addAll(Arrays.asList(productService1, productService2, productService3));
+        Page<ProductService> pages = new PageImpl<ProductService>(productServiceList.subList(0, 1), pagination, productServiceList.size());
+
+        Mockito.when((productServiceRepository.findAll(where.getValue(), pagination))).thenReturn(pages);
+        List<ProductServiceDetailDTO> resp = productServiceService.findAll(1,
+                2,
+                productService1.getName(),
+                productService1.getType(),
+                productService1.getStatus());
+
+        Assertions.assertNotNull(resp);
+        Assertions.assertEquals(resp.getClass(), ArrayList.class);
+        Assertions.assertEquals(1, resp.size());
     }
 
     @Test
@@ -82,10 +111,12 @@ public class TestProductServiceService {
 
     @Test
     public void UpdateProductService() {
-        ProductServiceCreateDTO productServiceCreateDTO = new ProductServiceCreateDTO("test1", 12.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE);
-        Mockito.when((productServiceRepository.save(Mockito.any(ProductService.class)))).thenReturn(MapperClass.converter(productServiceCreateDTO, ProductService.class));
-        ProductServiceDetailDTO resp = productServiceService.update(productService1.getId(), productServiceCreateDTO);
-        assertEquals(resp.getPrice(), productServiceCreateDTO.getPrice());
+        ProductService p1 = new ProductService(10L, "test1", 12.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
+        ProductService p2 = new ProductService(10L, "test2", 10.0, ProductServiceTypeEnum.SERVICE, ProductServiceStatusEnum.ACTIVE, null);
+        Mockito.when((productServiceRepository.save(Mockito.any(ProductService.class)))).thenReturn(p2);
+        Mockito.when((productServiceRepository.findById(p1.getId()))).thenReturn(Optional.of(p1));
+        ProductServiceDetailDTO resp = productServiceService.update(p1.getId(), MapperClass.converter(p2, ProductServiceUpdateDTO.class));
+        assertEquals(resp.getPrice(), p2.getPrice());
         Assertions.assertEquals(resp.getClass(), ProductServiceDetailDTO.class);
     }
 

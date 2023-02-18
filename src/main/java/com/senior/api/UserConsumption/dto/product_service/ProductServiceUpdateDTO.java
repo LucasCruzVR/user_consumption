@@ -13,13 +13,13 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductServiceCreateDTO implements Serializable {
+public class ProductServiceUpdateDTO implements Serializable {
     private static final long serialVersionUID = 1L;
+    private Long id;
     @NotNull(message = "Product name can't be null")
     @NotEmpty(message = "Product name can't be empty")
     private String name;
     @NotNull(message = "Product price can't be null")
-    @NotEmpty(message = "Product of order can't be empty")
     private Double price;
     private ProductServiceTypeEnum type;
     private ProductServiceStatusEnum status;

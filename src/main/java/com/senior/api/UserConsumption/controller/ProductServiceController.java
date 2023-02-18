@@ -2,6 +2,7 @@ package com.senior.api.UserConsumption.controller;
 
 import com.senior.api.UserConsumption.dto.product_service.ProductServiceCreateDTO;
 import com.senior.api.UserConsumption.dto.product_service.ProductServiceDetailDTO;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceUpdateDTO;
 import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
 import com.senior.api.UserConsumption.service.ProductServiceService;
@@ -45,7 +46,7 @@ public class ProductServiceController {
 
     @PutMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<ProductServiceDetailDTO> update(@PathVariable Long id, @RequestBody @Valid ProductServiceCreateDTO productService) {
+    public ResponseEntity<ProductServiceDetailDTO> update(@PathVariable Long id, @RequestBody @Valid ProductServiceUpdateDTO productService) {
         return ResponseEntity.ok().body(productServiceService.update(id, productService));
     }
 

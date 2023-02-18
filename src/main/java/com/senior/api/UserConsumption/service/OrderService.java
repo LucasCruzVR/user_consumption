@@ -44,7 +44,7 @@ public class OrderService {
         }
         BooleanBuilder where = new BooleanBuilder();
         if (orderCode != null) {
-            where.and(qOrder.orderCode.like(orderCode));
+            where.and(qOrder.orderCode.like("%" + orderCode + "%"));
         }
         if (status != null) {
             where.and(qOrder.status.eq(status));
@@ -52,7 +52,7 @@ public class OrderService {
         Pageable pagination = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
         Page<Order> orderPage;
-        if(where.hasValue()) {
+        if (where.hasValue()) {
             orderPage = orderRepository.findAll(where.getValue(), pagination);
         } else {
             orderPage = orderRepository.findAll(pagination);

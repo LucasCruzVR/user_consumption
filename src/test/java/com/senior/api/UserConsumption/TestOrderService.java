@@ -1,4 +1,4 @@
-package com.senior.api.service;
+package com.senior.api.UserConsumption;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
