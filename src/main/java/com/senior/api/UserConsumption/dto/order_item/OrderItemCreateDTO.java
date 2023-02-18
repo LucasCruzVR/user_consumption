@@ -7,5 +7,4 @@ import lombok.Data;
 public class OrderItemCreateDTO {
     private ProductServiceBaseDTO productService;
     private Integer amount;
-    private Double price;
 }
