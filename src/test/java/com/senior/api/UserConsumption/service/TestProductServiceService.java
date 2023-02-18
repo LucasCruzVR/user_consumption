@@ -3,15 +3,13 @@ package com.senior.api.UserConsumption.service;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.senior.api.UserConsumption.domain.ProductService;
-import com.senior.api.UserConsumption.domain.QOrder;
 import com.senior.api.UserConsumption.domain.QProductService;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceCreateDTO;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceDetailDTO;
 import com.senior.api.UserConsumption.dto.product_service.ProductServiceUpdateDTO;
 import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
-import com.senior.api.UserConsumption.dto.product_service.ProductServiceCreateDTO;
-import com.senior.api.UserConsumption.dto.product_service.ProductServiceDetailDTO;
 import com.senior.api.UserConsumption.repository.ProductServiceRepository;
-import com.senior.api.UserConsumption.service.ProductServiceService;
 import com.senior.api.UserConsumption.util.MapperClass;
 import org.hibernate.ObjectNotFoundException;
 import org.junit.Test;
@@ -28,7 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestProductServiceService {

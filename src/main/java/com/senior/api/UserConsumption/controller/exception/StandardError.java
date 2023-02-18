@@ -30,7 +30,7 @@ public class StandardError implements Serializable {
         this.message = message;
     }
 
-    public StandardError(){
+    public StandardError() {
         timeStamp = LocalDateTime.now();
     }
 }

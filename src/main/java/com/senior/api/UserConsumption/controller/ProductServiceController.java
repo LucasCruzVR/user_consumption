@@ -35,7 +35,7 @@ public class ProductServiceController {
     public ResponseEntity<List<ProductServiceDetailDTO>> listAll(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                  @RequestParam(value = "size", defaultValue = "5") int size,
                                                                  @RequestParam(value = "name", required = false) String name,
-                                                                 @RequestParam(value = "type", required = false)ProductServiceTypeEnum type,
+                                                                 @RequestParam(value = "type", required = false) ProductServiceTypeEnum type,
                                                                  @RequestParam(value = "status", required = false) ProductServiceStatusEnum status) {
         return ResponseEntity.ok().body(productServiceService.findAll(page, size, name, type, status));
     }

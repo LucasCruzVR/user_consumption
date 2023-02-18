@@ -1,7 +1,7 @@
 package com.senior.api.UserConsumption.dto.order;
 
-import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import com.senior.api.UserConsumption.dto.order_item.OrderItemDetail;
+import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import lombok.*;
 
 import java.util.Set;

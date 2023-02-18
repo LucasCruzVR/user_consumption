@@ -1,6 +1,5 @@
 package com.senior.api.UserConsumption.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
 import lombok.*;

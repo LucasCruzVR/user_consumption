@@ -1,7 +1,7 @@
 package com.senior.api.UserConsumption.dto.order;
 
-import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import com.senior.api.UserConsumption.dto.order_item.OrderItemCreateDTO;
+import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

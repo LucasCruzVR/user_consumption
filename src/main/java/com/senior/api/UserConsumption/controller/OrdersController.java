@@ -4,7 +4,6 @@ import com.senior.api.UserConsumption.dto.order.OrderCreateDTO;
 import com.senior.api.UserConsumption.dto.order.OrderDetailDTO;
 import com.senior.api.UserConsumption.dto.order.OrderListDTO;
 import com.senior.api.UserConsumption.dto.order.OrderUpdateDTO;
-import com.senior.api.UserConsumption.dto.product_service.ProductServiceDetailDTO;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import com.senior.api.UserConsumption.service.OrderService;
 import com.senior.api.UserConsumption.util.MapperClass;

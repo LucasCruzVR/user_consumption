@@ -1,12 +1,9 @@
 package com.senior.api.UserConsumption.service;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.senior.api.UserConsumption.domain.Order;
-import com.senior.api.UserConsumption.domain.ProductService;
 import com.senior.api.UserConsumption.domain.QOrder;
 import com.senior.api.UserConsumption.dto.order.OrderCreateDTO;
-import com.senior.api.UserConsumption.dto.order.OrderDetailDTO;
 import com.senior.api.UserConsumption.dto.order.OrderListDTO;
 import com.senior.api.UserConsumption.dto.order.OrderUpdateDTO;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
@@ -26,7 +23,6 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestOrderService {
