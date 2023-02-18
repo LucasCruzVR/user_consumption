@@ -36,3 +36,10 @@ mvn clean install
 
 OBS: Por conta do projeto usar o QueryDSL e ele gerar uma "cópia" (QClass) das classes criadas, pode demorar alguns segundos para essas classes aparecerem na pasta Target e talvez até mostrar um erro em linhas de código enquanto não for completamente importado.
 É importante também, caso a IDE não faça isso automaticamente, marcar o path "target/generated-sources/annotations" como "Source" para que consiga identificar as classes que estão armazenadas no local.
+
+## Documentação
+Para acompanhar cada endpoint do projeto, ele tem implementado o Swagger2 para Spring Boot. Quando a aplicação estiver em execução é possível acessar a documentação através da url:
+```
+http://localhost:8090/swagger-ui/#/
+```
+![alt text](https://i.imgur.com/MyC2X7X.png)
