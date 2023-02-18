@@ -130,7 +130,7 @@ public class OrderService {
     /* PRIVATE METHODS */
 
     private ProductService getByProductService(Long id) {
-        ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new RuntimeException("Product/Service not found"));
+        ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "Product/Service not found"));
         if (productService.getStatus().equals(ProductServiceStatusEnum.ACTIVE)) {
             return productService;
         }

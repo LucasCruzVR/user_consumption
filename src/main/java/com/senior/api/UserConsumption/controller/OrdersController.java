@@ -40,7 +40,7 @@ public class OrdersController {
         return ResponseEntity.ok().body(orderService.findAll(page, size, orderCode, status));
     }
 
-    @ApiOperation(value = "Return one order", notes = "Return only one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
+    @ApiOperation(value = "Return a order", notes = "Return only one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = OrderDetailDTO.class)})
     @GetMapping("/{id}")
@@ -49,7 +49,7 @@ public class OrdersController {
         return ResponseEntity.ok().body(mapperClass.toObject(orderService.findOne(id), OrderDetailDTO.class));
     }
 
-    @ApiOperation(value = "Create one order", notes = "Create one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
+    @ApiOperation(value = "Create a order", notes = "Create only one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Success", response = OrderDetailDTO.class)})
     @PostMapping
@@ -58,7 +58,7 @@ public class OrdersController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapperClass.toObject(orderService.save(order), OrderDetailDTO.class));
     }
 
-    @ApiOperation(value = "Update one order", notes = "Update only one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
+    @ApiOperation(value = "Update a order", notes = "Update only one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = OrderDetailDTO.class)})
     @PutMapping("/{id}")
@@ -67,7 +67,7 @@ public class OrdersController {
         return ResponseEntity.ok().body(mapperClass.toObject(orderService.update(id, order), OrderDetailDTO.class));
     }
 
-    @ApiOperation(value = "Delete one order", notes = "Delete only one order", protocols = "Accept=application/json")
+    @ApiOperation(value = "Delete a order", notes = "Delete only one order", protocols = "Accept=application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success")})
     @DeleteMapping("/{id}")
