@@ -1,25 +1,26 @@
 package com.senior.api.UserConsumption.service;
 
+import com.querydsl.core.BooleanBuilder;
 import com.senior.api.UserConsumption.domain.Order;
 import com.senior.api.UserConsumption.domain.OrderItem;
 import com.senior.api.UserConsumption.domain.ProductService;
+import com.senior.api.UserConsumption.domain.QOrder;
+import com.senior.api.UserConsumption.dto.order.OrderCreateDTO;
+import com.senior.api.UserConsumption.dto.order.OrderDetailDTO;
+import com.senior.api.UserConsumption.dto.order.OrderListDTO;
+import com.senior.api.UserConsumption.dto.order.OrderUpdateDTO;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
 import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
-import com.senior.api.UserConsumption.model.order.OrderCreateDTO;
-import com.senior.api.UserConsumption.model.order.OrderDetailDTO;
-import com.senior.api.UserConsumption.model.order.OrderListDTO;
-import com.senior.api.UserConsumption.model.order.OrderUpdateDTO;
-import com.senior.api.UserConsumption.repository.OrderItemRepository;
 import com.senior.api.UserConsumption.repository.OrderRepository;
 import com.senior.api.UserConsumption.repository.ProductServiceRepository;
 import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,17 +34,30 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ProductServiceRepository productServiceRepository;
-    private final ModelMapper modelMapper;
     private final MapperClass mapperClass;
+    private static QOrder qOrder = QOrder.order;
 
-    public List<OrderListDTO> findAll(int page, int size) {
+    public List<OrderListDTO> findAll(int page, int size, String orderCode, OrderStatusEnum status) {
         if (page > 0) {
             page = page - 1;
         }
-        Pageable pagination = PageRequest.of(page, size);
-        Page<Order> orderPage = orderRepository.findAll(pagination);
+        BooleanBuilder where = new BooleanBuilder();
+        if (orderCode != null) {
+            where.and(qOrder.orderCode.like(orderCode));
+        }
+        if (status != null) {
+            where.and(qOrder.status.eq(status));
+        }
+        Pageable pagination = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+
+        Page<Order> orderPage;
+        if(where.hasValue()) {
+            orderPage = orderRepository.findAll(where.getValue(), pagination);
+        } else {
+            orderPage = orderRepository.findAll(pagination);
+        }
+
         List<Order> orderList = orderPage.getContent();
         return MapperClass.converter(orderList, OrderListDTO.class);
     }
@@ -57,7 +71,7 @@ public class OrderService {
         if (orderCreateDTO.getDiscountPercentage() == null) {
             orderCreateDTO.setDiscountPercentage(0.0);
         }
-        if(!applyDiscountIfOrderIsOpen(orderCreateDTO)) {
+        if (!applyDiscountIfOrderIsOpen(orderCreateDTO)) {
             throw new IllegalArgumentException("Can't apply discount because order is inactive");
         }
         /* define order base attributes */
@@ -69,7 +83,7 @@ public class OrderService {
 
         /* get orderItems from DTO and calculate final price */
         Set<OrderItem> orderItem = MapperClass.converter(orderCreateDTO.getOrderItem(), OrderItem.class);
-        orderItem = orderItemsWithCalculatedPrices(orderItem ,order, orderCreateDTO.getDiscountPercentage());
+        orderItem = orderItemsWithCalculatedPrices(orderItem, order, orderCreateDTO.getDiscountPercentage());
 
         /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
@@ -86,7 +100,7 @@ public class OrderService {
         if (orderUpdateDTO.getDiscountPercentage() == null) {
             orderUpdateDTO.setDiscountPercentage(0.0);
         }
-        if(!applyDiscountIfOrderIsOpen(MapperClass.converter(orderUpdateDTO, OrderCreateDTO.class))) {
+        if (!applyDiscountIfOrderIsOpen(MapperClass.converter(orderUpdateDTO, OrderCreateDTO.class))) {
             throw new IllegalArgumentException("Can't apply discount because order is inactive");
         }
         /* define order base attributes */
@@ -97,7 +111,7 @@ public class OrderService {
 
         /* get orderItems from DTO and calculate final price */
         Set<OrderItem> orderItem = MapperClass.converter(orderUpdateDTO.getOrderItem(), OrderItem.class);
-        orderItem = orderItemsWithCalculatedPrices(orderItem , order, orderUpdateDTO.getDiscountPercentage());
+        orderItem = orderItemsWithCalculatedPrices(orderItem, order, orderUpdateDTO.getDiscountPercentage());
 
         /* Add all prices of Products/Services linked to the Order */
         order.setFinalPrice(orderItem.stream().mapToDouble(oi -> oi.getPrice()).sum());
@@ -118,18 +132,18 @@ public class OrderService {
 
     private ProductService getByProductService(Long id) {
         ProductService productService = productServiceRepository.findById(id).orElseThrow(() -> new RuntimeException("Product/Service not found"));
-        if(productService.getStatus().equals(ProductServiceStatusEnum.ACTIVE)) {
+        if (productService.getStatus().equals(ProductServiceStatusEnum.ACTIVE)) {
             return productService;
         }
-        throw new IllegalArgumentException("Product "+ productService.getName() + " is inactive");
+        throw new IllegalArgumentException("Product " + productService.getName() + " is inactive");
     }
 
     private Order getByOrder(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id,"Order not found"));
+        return orderRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "Order not found"));
     }
 
     private Boolean applyDiscountIfOrderIsOpen(OrderCreateDTO order) {
-        if(order.getDiscountPercentage() > 0 && order.getStatus().equals(OrderStatusEnum.INACTIVE)) {
+        if (order.getDiscountPercentage() > 0 && order.getStatus().equals(OrderStatusEnum.INACTIVE)) {
             return false;
         }
         return true;

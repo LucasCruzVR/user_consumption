@@ -1,4 +1,4 @@
-package com.senior.api.UserConsumption.model.order;
+package com.senior.api.UserConsumption.dto.order;
 
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import lombok.Data;

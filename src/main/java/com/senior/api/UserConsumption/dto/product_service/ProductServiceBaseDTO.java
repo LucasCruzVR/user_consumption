@@ -1,4 +1,4 @@
-package com.senior.api.UserConsumption.model.product_service;
+package com.senior.api.UserConsumption.dto.product_service;
 
 import lombok.Getter;
 

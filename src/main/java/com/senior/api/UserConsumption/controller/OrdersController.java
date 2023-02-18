@@ -1,10 +1,10 @@
 package com.senior.api.UserConsumption.controller;
 
-import com.senior.api.UserConsumption.domain.Order;
-import com.senior.api.UserConsumption.model.order.OrderListDTO;
-import com.senior.api.UserConsumption.model.order.OrderCreateDTO;
-import com.senior.api.UserConsumption.model.order.OrderDetailDTO;
-import com.senior.api.UserConsumption.model.order.OrderUpdateDTO;
+import com.senior.api.UserConsumption.dto.order.OrderCreateDTO;
+import com.senior.api.UserConsumption.dto.order.OrderDetailDTO;
+import com.senior.api.UserConsumption.dto.order.OrderListDTO;
+import com.senior.api.UserConsumption.dto.order.OrderUpdateDTO;
+import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import com.senior.api.UserConsumption.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,8 +24,10 @@ public class OrdersController {
     @GetMapping
     @ResponseBody
     public ResponseEntity<List<OrderListDTO>> listAll(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                      @RequestParam(value = "size", defaultValue = "5") int size) {
-        return ResponseEntity.ok().body(orderService.findAll(page, size));
+                                                      @RequestParam(value = "size", defaultValue = "5") int size,
+                                                      @RequestParam(value = "orderCode", required = false) String orderCode,
+                                                      @RequestParam(value = "status", required = false) OrderStatusEnum status) {
+        return ResponseEntity.ok().body(orderService.findAll(page, size, orderCode, status));
     }
 
     @GetMapping("/{id}")

@@ -1,6 +1,6 @@
-package com.senior.api.UserConsumption.model.order_item;
+package com.senior.api.UserConsumption.dto.order_item;
 
-import com.senior.api.UserConsumption.model.product_service.ProductServiceBaseDTO;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceBaseDTO;
 import lombok.*;
 
 @Getter

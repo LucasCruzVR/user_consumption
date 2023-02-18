@@ -1,11 +1,9 @@
-package com.senior.api.UserConsumption.model.order;
+package com.senior.api.UserConsumption.dto.order;
 
-import com.senior.api.UserConsumption.domain.OrderItem;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
-import com.senior.api.UserConsumption.model.order_item.OrderItemDetail;
+import com.senior.api.UserConsumption.dto.order_item.OrderItemDetail;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter

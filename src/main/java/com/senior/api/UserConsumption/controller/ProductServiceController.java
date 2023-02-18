@@ -1,7 +1,9 @@
 package com.senior.api.UserConsumption.controller;
 
-import com.senior.api.UserConsumption.model.product_service.ProductServiceCreateDTO;
-import com.senior.api.UserConsumption.model.product_service.ProductServiceDetailDTO;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceCreateDTO;
+import com.senior.api.UserConsumption.dto.product_service.ProductServiceDetailDTO;
+import com.senior.api.UserConsumption.itemize.ProductServiceStatusEnum;
+import com.senior.api.UserConsumption.itemize.ProductServiceTypeEnum;
 import com.senior.api.UserConsumption.service.ProductServiceService;
 import com.senior.api.UserConsumption.util.MapperClass;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +24,11 @@ public class ProductServiceController {
     @GetMapping
     @ResponseBody
     public ResponseEntity<List<ProductServiceDetailDTO>> listAll(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                                 @RequestParam(value = "size", defaultValue = "5") int size) {
-        return ResponseEntity.ok().body(productServiceService.findAll(page, size));
+                                                                 @RequestParam(value = "size", defaultValue = "5") int size,
+                                                                 @RequestParam(value = "name", required = false) String name,
+                                                                 @RequestParam(value = "type", required = false)ProductServiceTypeEnum type,
+                                                                 @RequestParam(value = "status", required = false) ProductServiceStatusEnum status) {
+        return ResponseEntity.ok().body(productServiceService.findAll(page, size, name, type, status));
     }
 
     @GetMapping("/{id}")
