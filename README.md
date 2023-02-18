@@ -42,4 +42,4 @@ Para acompanhar cada endpoint do projeto, ele tem implementado o Swagger2 para S
 ```
 http://localhost:8090/swagger-ui/#/
 ```
-![alt text](https://i.imgur.com/MyC2X7X.png)
+![alt text](https://i.imgur.com/ylLpgxr.png)
