@@ -28,6 +28,8 @@ public class ProductService implements Serializable {
     @NotNull(message = "Product/Service name can't be null")
     @NotEmpty(message = "Product/Service name can't be empty")
     private String name;
+
+    @NotNull(message = "Product price can't be null")
     private Double price;
 
     @Enumerated(EnumType.STRING)

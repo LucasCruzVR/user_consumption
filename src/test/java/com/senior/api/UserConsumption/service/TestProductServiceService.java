@@ -1,6 +1,7 @@
-package com.senior.api.UserConsumption;
+package com.senior.api.UserConsumption.service;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.senior.api.UserConsumption.domain.ProductService;
 import com.senior.api.UserConsumption.domain.QOrder;
 import com.senior.api.UserConsumption.domain.QProductService;
@@ -36,6 +37,9 @@ public class TestProductServiceService {
     private ProductServiceService productServiceService;
 
     @Mock
+    BooleanBuilder booleanBuilder;
+
+    @Mock
     private ProductServiceRepository productServiceRepository;
 
     private static QProductService qProductService = QProductService.productService;
@@ -62,16 +66,10 @@ public class TestProductServiceService {
     @Test
     public void listAllProductServiceWithPaginationAndFilter() {
         Pageable pagination = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "id"));
-
-        BooleanBuilder where = new BooleanBuilder();
-        where.and(qProductService.name.like(productService1.getName()));
-        where.and(qProductService.status.eq(productService1.getStatus()));
-        where.and(qProductService.type.eq(productService1.getType()));
-
         productServiceList.addAll(Arrays.asList(productService1, productService2, productService3));
         Page<ProductService> pages = new PageImpl<ProductService>(productServiceList.subList(0, 1), pagination, productServiceList.size());
 
-        Mockito.when((productServiceRepository.findAll(where.getValue(), pagination))).thenReturn(pages);
+        Mockito.when((productServiceRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))).thenReturn(pages);
         List<ProductServiceDetailDTO> resp = productServiceService.findAll(1,
                 2,
                 productService1.getName(),
@@ -121,11 +119,25 @@ public class TestProductServiceService {
     }
 
     @Test
-    public void deleteProductService() {
-        final ProductService ps1 = new ProductService(1L, "test1", 10.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
-        final ProductService ps2 = new ProductService(1L, "test2", 12.0, ProductServiceTypeEnum.SERVICE, ProductServiceStatusEnum.ACTIVE, null);
+    public void notFoundProductServiceIdToUpdate() {
+        ProductService p1 = new ProductService(10L, "test1", 12.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
+        Mockito.when((productServiceRepository.findById(0L))).thenReturn(Optional.empty());
+        assertThrows("Not Found", ObjectNotFoundException.class, () -> productServiceService.update(0L, Mockito.any(ProductServiceUpdateDTO.class)));
+    }
 
-        productServiceService.delete(ps1.getId());
-        assertThrows("Not Found", ObjectNotFoundException.class, () -> productServiceService.findOne(ps1.getId()));
+    @Test
+    public void deleteProductService() {
+        ProductService p1 = new ProductService(10L, "test1", 12.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
+        Mockito.when((productServiceRepository.findById(Mockito.any(Long.class)))).thenReturn(Optional.of(p1));
+        productServiceService.delete(p1.getId());
+        Mockito.verify(productServiceRepository, Mockito.times(1)).deleteById(p1.getId());
+    }
+
+    @Test
+    public void notFoundProductServiceIdToDelete() {
+        ProductService p1 = new ProductService(10L, "test1", 12.0, ProductServiceTypeEnum.PRODUCT, ProductServiceStatusEnum.ACTIVE, null);
+        Mockito.when((productServiceRepository.findById(0L))).thenReturn(Optional.empty());
+
+        assertThrows("Not Found", ObjectNotFoundException.class, () -> productServiceService.delete(0L));
     }
 }

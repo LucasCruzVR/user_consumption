@@ -80,6 +80,7 @@ public class ProductServiceService {
     }
 
     public void delete(Long id) {
+        productServiceRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "Product/Service Not found"));
         try {
             productServiceRepository.deleteById(id);
         } catch (Exception ex) {

@@ -7,6 +7,7 @@ import com.senior.api.UserConsumption.dto.order.OrderUpdateDTO;
 import com.senior.api.UserConsumption.dto.product_service.ProductServiceDetailDTO;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import com.senior.api.UserConsumption.service.OrderService;
+import com.senior.api.UserConsumption.util.MapperClass;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -26,6 +27,7 @@ import java.util.List;
 public class OrdersController {
 
     private final OrderService orderService;
+    private final MapperClass mapperClass;
 
     @ApiOperation(value = "List all orders", notes = "May have filters", protocols = "Accept=application/json", response = OrderListDTO.class)
     @ApiResponses(value = {
@@ -45,7 +47,7 @@ public class OrdersController {
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<OrderDetailDTO> read(@PathVariable Long id) {
-        return ResponseEntity.ok().body(orderService.findOne(id));
+        return ResponseEntity.ok().body(mapperClass.toObject(orderService.findOne(id), OrderDetailDTO.class));
     }
 
     @ApiOperation(value = "Create one order", notes = "Create one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
@@ -54,7 +56,7 @@ public class OrdersController {
     @PostMapping
     @ResponseBody
     public ResponseEntity<OrderDetailDTO> create(@RequestBody @Valid OrderCreateDTO order) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.save(order));
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapperClass.toObject(orderService.save(order), OrderDetailDTO.class));
     }
 
     @ApiOperation(value = "Update one order", notes = "Update only one order", protocols = "Accept=application/json", response = OrderDetailDTO.class)
@@ -63,7 +65,7 @@ public class OrdersController {
     @PutMapping("/{id}")
     @ResponseBody
     public ResponseEntity<OrderDetailDTO> update(@PathVariable Long id, @RequestBody @Valid OrderUpdateDTO order) {
-        return ResponseEntity.ok().body(orderService.update(id, order));
+        return ResponseEntity.ok().body(mapperClass.toObject(orderService.update(id, order), OrderDetailDTO.class));
     }
 
     @ApiOperation(value = "Delete one order", notes = "Delete only one order", protocols = "Accept=application/json")

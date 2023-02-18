@@ -6,7 +6,6 @@ import com.senior.api.UserConsumption.domain.OrderItem;
 import com.senior.api.UserConsumption.domain.ProductService;
 import com.senior.api.UserConsumption.domain.QOrder;
 import com.senior.api.UserConsumption.dto.order.OrderCreateDTO;
-import com.senior.api.UserConsumption.dto.order.OrderDetailDTO;
 import com.senior.api.UserConsumption.dto.order.OrderListDTO;
 import com.senior.api.UserConsumption.dto.order.OrderUpdateDTO;
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
@@ -62,12 +61,12 @@ public class OrderService {
         return MapperClass.converter(orderList, OrderListDTO.class);
     }
 
-    public OrderDetailDTO findOne(Long id) {
-        return mapperClass.toObject(getByOrder(id), OrderDetailDTO.class);
+    public Order findOne(Long id) {
+        return getByOrder(id);
     }
 
     @Transactional
-    public OrderDetailDTO save(OrderCreateDTO orderCreateDTO) {
+    public Order save(OrderCreateDTO orderCreateDTO) {
         if (orderCreateDTO.getDiscountPercentage() == null) {
             orderCreateDTO.setDiscountPercentage(0.0);
         }
@@ -91,12 +90,12 @@ public class OrderService {
         order.getOrderItem().clear();
         order.getOrderItem().addAll(orderItem);
 
-        return mapperClass.toObject(orderRepository.save(order), OrderDetailDTO.class);
+        return orderRepository.save(order);
     }
 
     @Transactional
-    public OrderDetailDTO update(Long id, OrderUpdateDTO orderUpdateDTO) {
-        Order order = orderRepository.findById(id).orElse(Order.builder().build());
+    public Order update(Long id, OrderUpdateDTO orderUpdateDTO) {
+        Order order = getByOrder(id);
         if (orderUpdateDTO.getDiscountPercentage() == null) {
             orderUpdateDTO.setDiscountPercentage(0.0);
         }
@@ -119,7 +118,7 @@ public class OrderService {
         order.getOrderItem().clear();
         order.getOrderItem().addAll(orderItem);
 
-        return mapperClass.toObject(orderRepository.save(order), OrderDetailDTO.class);
+        return orderRepository.save(order);
     }
 
     @Transactional

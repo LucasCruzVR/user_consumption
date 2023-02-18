@@ -2,7 +2,9 @@ package com.senior.api.UserConsumption.dto.order;
 
 import com.senior.api.UserConsumption.itemize.OrderStatusEnum;
 import com.senior.api.UserConsumption.dto.order_item.OrderItemCreateDTO;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -12,6 +14,8 @@ import java.io.Serializable;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderCreateDTO implements Serializable {
     @NotNull(message = "Code of order can't be null")
     @NotEmpty(message = "Code of order can't be empty")
